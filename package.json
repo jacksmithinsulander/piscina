@@ -1,7 +1,7 @@
 {
   "name": "tstest",
   "version": "1.0.0",
-  "description": "Piscina is a feed for new LPs on multiple dexes, on multiple EVMs.",
+  "description": "Piscina is a feed for new LPs on multiple AMMs, on multiple EVMs.",
   "main": "dist/index.js",
   "type": "module",
   "scripts": {
