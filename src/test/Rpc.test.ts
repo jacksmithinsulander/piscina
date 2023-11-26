@@ -1,13 +1,4 @@
-class Rpc {
-    public network: string;
-    constructor(network: string) {
-        this.network = network;
-    }
-
-    get node() {
-        return "hello";
-    }
-}
+import { Rpc } from '../modules/Rpc.js'
 
 const demo: Rpc = new Rpc("PulseChain");
 const demo2: string = demo.node;
