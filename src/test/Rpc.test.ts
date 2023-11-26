@@ -1,10 +1,7 @@
-import { Rpc } from '../modules/Rpc.js'
+import { Rpc } from '../modules/Rpc'
 
-const demo: Rpc = new Rpc("PulseChain");
-const demo2: string = demo.node;
-const demo3: string = new Rpc("Bsc").node;
+const rpc: Rpc = new Rpc("PulseChain");
 
-console.log(demo);
-console.log(demo2);
-console.log(demo3);
-console.log(demo.network);
+test('should return an instance of Rpc', () => {
+    expect(rpc instanceof Rpc);
+});
