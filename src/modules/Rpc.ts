@@ -12,6 +12,12 @@ class Rpc {
     constructor(network: string) {
         this.network = network;
 
+        if (!rpcList[network]) {
+            throw new Error(
+                `Network '${network}' is not present in the rpcList.`
+            );
+        }
+
         if (!this.rpcIndex[network]) {
             this.rpcIndex[network] = 0;
         }

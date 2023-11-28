@@ -30,5 +30,12 @@ describe('Rpc Class', () => {
         expect(boba.node).toBe('https://gateway.tenderly.co/public/boba-ethereum');
         expect(boba.node).toBe('https://mainnet.boba.network');
     });
+
+    test('should throw error for invalid network', () => {
+        const createInvalidRpc = () => {
+            new Rpc('invalidNetwork');
+        };
+        expect(createInvalidRpc).toThrow(Error);
+    });
 });
 
