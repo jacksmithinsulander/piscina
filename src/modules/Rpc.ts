@@ -7,19 +7,19 @@ interface RpcList {
 
 class Rpc {
     public network: string;
-    private static list: RpcList = {};
+    private list: RpcList = {};
 
     constructor(network: string) {
         this.network = network;
 
-        if (!Rpc.list[network]) {
-            Rpc.list[network] = 0;
+        if (!this.list[network]) {
+            this.list[network] = 0;
         }
     }
 
     get node() {
-        const networkList = Rpc.list[this.network];
-        Rpc.list[this.network] += 1;
+        const networkList = this.list[this.network];
+        this.list[this.network] += 1;
         return networkList;
     }
 }
