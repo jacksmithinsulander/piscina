@@ -19,7 +19,7 @@ class Rpc {
     
     get node() {
         const links: string[] = rpcList[this.network];
-        const index: number = this.rpcIndex[this.network];
+        const index: number = this.rpcIndex[this.network] % links.length;
         this.rpcIndex[this.network] += 1;
         return links[index];
     }
