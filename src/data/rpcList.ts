@@ -1,4 +1,4 @@
-const rpcList = {
+const rpcList: { [key: string]: string[] } = {
     "eth": [
         "https://endpoints.omniatech.io/v1/eth/mainnet/public",
         "https://eth.llamarpc.com",

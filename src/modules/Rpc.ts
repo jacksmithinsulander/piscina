@@ -1,26 +1,27 @@
-//import { rpcList } from '../data/rpcList';
+import rpcList from '../data/rpcList';
 
-interface RpcList {
+
+interface RpcIndex {
     [network: string]: number;
 }
 
-
 class Rpc {
     public network: string;
-    private list: RpcList = {};
+    private rpcIndex: RpcIndex = {};
 
     constructor(network: string) {
         this.network = network;
 
-        if (!this.list[network]) {
-            this.list[network] = 0;
+        if (!this.rpcIndex[network]) {
+            this.rpcIndex[network] = 0;
         }
     }
-
+    
     get node() {
-        const networkList = this.list[this.network];
-        this.list[this.network] += 1;
-        return networkList;
+        const links = rpcList[this.network];
+        const index = this.rpcIndex[this.network];
+        this.rpcIndex[this.network] += 1;
+        return links[index];
     }
 }
 
