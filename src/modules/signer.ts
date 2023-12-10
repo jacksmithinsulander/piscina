@@ -1,4 +1,4 @@
-import { Abi, ZeroHexString } from "@hazae41/cubane"
+import { Abi, Fixed, ZeroHexFixed, ZeroHexString } from "@hazae41/cubane"
 import { RpcCounter, RpcRequestPreinit, RpcResponse } from "@hazae41/jsonrpc"
 
 interface Callable<I extends readonly Abi.Factory[], O extends Abi.Factory> {
@@ -65,5 +65,22 @@ class FetchProvider {
         }).then((r) => r.unwrap());
     
         return Abi.decodeOrThrow(output, response).intoOrThrow() as Abi.Factory.Into<O>;
-    }  
+    }
+    
+    async getBlockNumber() {
+        return await this.request<ZeroHexString>({
+            method: "eth_blockNumber"
+        }).then(r => r.mapSync(BigInt).unwrap())
+    }
+
+    async getBalance(address: ZeroHexString) {
+        const response = await this.request<ZeroHexString>({
+            method: "eth_getBalance",
+            params: [address, "latest"]
+        }).then(r => r.unwrap())
+      
+        return Fixed.fromJSON(new ZeroHexFixed(response, 18))
+    }
 }
+
+export { FetchProvider };
