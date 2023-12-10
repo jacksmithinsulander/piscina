@@ -1,4 +1,4 @@
-import rpcList from '../data/rpcList';
+import rpcList from '../data/rpcList.js';
 
 /**
  * Interface defining the index for RPCs by network.
