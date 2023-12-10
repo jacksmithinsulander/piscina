@@ -16,6 +16,7 @@
     "@types/node": "^20.4.5",
     "jest": "^29.7.0",
     "ts-jest": "^29.1.1",
-    "typescript": "^5.1.6"
+    "typescript": "^5.1.6",
+    "@hazae41/cubane": "^0.1.2"
   }
 }
