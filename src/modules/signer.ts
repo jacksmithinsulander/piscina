@@ -43,5 +43,27 @@ class FetchProvider {
             }, "pending"]
         }).then(r => r.unwrap())
         return Abi.decodeOrThrow(output, response).intoOrThrow() as Abi.Factory.Into<O>
-    } 
+    }
+    
+    async callWithBlock<I extends readonly Abi.Factory[], O extends Abi.Factory>(
+        address: ZeroHexString,
+        callable: Callable<I, O>,
+        blockNumber: number | string,
+        ...args: Abi.Factory.Froms<I>
+    ) {
+        const { input, output } = callable;
+    
+        const response = await this.request<ZeroHexString>({
+            method: "eth_call",
+            params: [
+                {
+                    to: address,
+                    data: Abi.encodeOrThrow(input.from(...args)),
+                    blockNumber,
+                },
+            ],
+        }).then((r) => r.unwrap());
+    
+        return Abi.decodeOrThrow(output, response).intoOrThrow() as Abi.Factory.Into<O>;
+    }  
 }
