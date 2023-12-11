@@ -3,11 +3,13 @@
   "version": "1.0.0",
   "description": "Piscina is a feed for new LPs on multiple AMMs, on multiple EVMs.",
   "main": "dist/index.js",
-  "type": "module",
+  "type": "commonjs",
   "scripts": {
-    "build": "rm -rf dist/ && tsc",
+    "build": "npm run switch-to-module && rm -rf dist/ && tsc",
     "start": "node dist/index.js",
-    "test": "jest"
+    "test": "npm run switch-to-commonjs && jest",
+    "switch-to-module": "node -e \"const fs = require('fs'); fs.writeFileSync('package.json', JSON.stringify({...require('./package.json'), type: 'module'}, null, 2));\"",
+    "switch-to-commonjs": "node -e \"const fs = require('fs'); fs.writeFileSync('package.json', JSON.stringify({...require('./package.json'), type: 'commonjs'}, null, 2));\""
   },
   "keywords": [],
   "author": "",

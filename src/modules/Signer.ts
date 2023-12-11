@@ -14,7 +14,7 @@ interface Callable<I extends readonly Abi.Factory[], O extends Abi.Factory> {
 /**
  * Provides methods to make JSON-RPC requests to an Ethereum node.
  */
-class FetchProvider {
+class Signer {
     /**
      * Counter to manage RPC requests.
      */
@@ -131,4 +131,4 @@ class FetchProvider {
     }
 }
 
-export { FetchProvider };
+export { Signer };
