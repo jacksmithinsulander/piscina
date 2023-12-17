@@ -1,6 +1,6 @@
 
-import { Rpc } from '../modules/Rpc.js'
-import { Signer } from '../modules/Signer.js'
+import { Rpc } from '../models/Rpc.js';
+import { Signer } from '../models/Signer.js';
 
 describe('Signer Class', () => {
     let signer: Signer;

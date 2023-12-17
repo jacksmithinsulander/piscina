@@ -1,5 +1,5 @@
-import { Abi, Fixed, ZeroHexFixed, ZeroHexString } from "@hazae41/cubane"
-import { RpcCounter, RpcRequestPreinit, RpcResponse } from "@hazae41/jsonrpc"
+import { Abi, Fixed, ZeroHexFixed, ZeroHexString } from "@hazae41/cubane";
+import { RpcCounter, RpcRequestPreinit, RpcResponse } from "@hazae41/jsonrpc";
 
 /**
  * Represents a callable function signature.

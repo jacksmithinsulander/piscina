@@ -1,4 +1,4 @@
-import { Rpc } from '../modules/Rpc.js'
+import { Rpc } from '../models/Rpc.js';
 
 describe('Rpc Class', () => {
     let eth: Rpc;
