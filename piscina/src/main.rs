@@ -29,7 +29,10 @@ struct Indexes {
     boba: i32
 }
 
+let mut indexes: Indexes;
+
 fn main() {
+    // Testprinting
     rpc("eth");
     rpc("avax");
     rpc("pulsechain");
@@ -45,19 +48,46 @@ fn rpc(chain: &str) {
     // Init empty Vec for holding rpc urls
     let mut rpc_urls: Vec<String> = Vec::new();
 
+    // Init empty integer for index
+    let mut index: i32;
+
     // Access the rpc urls based on input argument
     match chain {
-        "eth" => rpc_urls = networks.eth.clone(),
-        "matic" => rpc_urls = networks.matic.clone(),
-        "arb" => rpc_urls = networks.arb.clone(),
-        "op" => rpc_urls = networks.op.clone(),
-        "ftm" => rpc_urls = networks.ftm.clone(),
-        "avax" => rpc_urls = networks.avax.clone(),
-        "metis" => rpc_urls = networks.metis.clone(),
-        "harmony" => rpc_urls = networks.harmony.clone(),
-        "pulsechain" => rpc_urls = networks.pulsechain.clone(),
-        "bnb" => rpc_urls = networks.bnb.clone(),
-        "boba" => rpc_urls = networks.boba.clone(),
+        "eth" => {
+            rpc_urls = networks.eth.clone();
+            indexes.eth++;
+        },
+        "matic" => { 
+            rpc_urls = networks.matic.clone();
+            indexes.matic++;
+        },
+        "arb" => { 
+            rpc_urls = networks.arb.clone();
+        },
+        "op" => {
+            rpc_urls = networks.op.clone();
+        },
+        "ftm" => { 
+            rpc_urls = networks.ftm.clone();
+        },
+        "avax" => { 
+            rpc_urls = networks.avax.clone();
+        },
+        "metis" => { 
+            rpc_urls = networks.metis.clone();
+        },
+        "harmony" => { 
+            rpc_urls = networks.harmony.clone();
+        },
+        "pulsechain" => { 
+            rpc_urls = networks.pulsechain.clone();
+        },
+        "bnb" => { 
+            rpc_urls = networks.bnb.clone();
+        },
+        "boba" => {
+            rpc_urls = networks.boba.clone();
+        },
         _ => println!("Chain not found"),
     }
 
