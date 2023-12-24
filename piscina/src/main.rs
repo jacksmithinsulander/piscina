@@ -29,8 +29,6 @@ struct Indexes {
     boba: i32
 }
 
-let mut indexes: Indexes;
-
 fn main() {
     // Testprinting
     rpc("eth");
@@ -48,18 +46,13 @@ fn rpc(chain: &str) {
     // Init empty Vec for holding rpc urls
     let mut rpc_urls: Vec<String> = Vec::new();
 
-    // Init empty integer for index
-    let mut index: i32;
-
     // Access the rpc urls based on input argument
     match chain {
         "eth" => {
             rpc_urls = networks.eth.clone();
-            indexes.eth++;
         },
         "matic" => { 
             rpc_urls = networks.matic.clone();
-            indexes.matic++;
         },
         "arb" => { 
             rpc_urls = networks.arb.clone();
