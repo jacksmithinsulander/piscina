@@ -15,75 +15,59 @@ struct Networks {
     boba: Vec<String>
 }
 
-struct Indexes {
-    eth: i32,
-    matic: i32,
-    arb: i32,
-    op: i32,
-    ftm: i32,
-    avax: i32,
-    metis: i32,
-    harmony: i32,
-    pulsechain: i32,
-    bnb: i32,
-    boba: i32
+struct Rpc {
+    net_urls: Vec<String>,
+    url_index: usize,
+}
+
+impl Rpc {
+    fn new(network: &str) -> Rpc {
+        let json_data = include_str!("../data/rpc.json");
+        
+        // Deserialize JSON into Networks struct
+        let networks: Networks = serde_json::from_str(json_data).expect("JSON parsing failed");
+
+        // Create instance for url vec
+        let urls: Vec<String> = match network {
+            "eth" => networks.eth,
+            "matic" => networks.matic,
+            "arb" => networks.arb,
+            "op" => networks.op,
+            "ftm" => networks.ftm,
+            "avax" => networks.avax,
+            "metis" => networks.metis,
+            "harmony" => networks.harmony,
+            "pulsechain" => networks.pulsechain,
+            "bnb" => networks.bnb,
+            "boba" => networks.boba,
+            _ => {
+                println!("Chain not found");
+                Vec::new() 
+            }
+        };
+
+        Rpc { 
+            net_urls: urls,
+            url_index: 0
+        }
+    }
+
+    fn get_url(&mut self) -> Option<&String> {
+        let url = &self.net_urls[self.url_index % self.net_urls.len()];
+        self.url_index += 1;
+        Some(url)
+    }
 }
 
 fn main() {
-    // Testprinting
-    rpc("eth");
-    rpc("avax");
-    rpc("pulsechain");
-}
+    let mut rpc_instance = Rpc::new("eth");
 
-fn rpc(chain: &str) {
-    // Read the file contents
-    let json_data = include_str!("../data/rpc.json");
-
-    // Deserialize JSON into Networks struct
-    let networks: Networks = serde_json::from_str(json_data).expect("JSON parsing failed");
-
-    // Init empty Vec for holding rpc urls
-    let mut rpc_urls: Vec<String> = Vec::new();
-
-    // Access the rpc urls based on input argument
-    match chain {
-        "eth" => {
-            rpc_urls = networks.eth.clone();
-        },
-        "matic" => { 
-            rpc_urls = networks.matic.clone();
-        },
-        "arb" => { 
-            rpc_urls = networks.arb.clone();
-        },
-        "op" => {
-            rpc_urls = networks.op.clone();
-        },
-        "ftm" => { 
-            rpc_urls = networks.ftm.clone();
-        },
-        "avax" => { 
-            rpc_urls = networks.avax.clone();
-        },
-        "metis" => { 
-            rpc_urls = networks.metis.clone();
-        },
-        "harmony" => { 
-            rpc_urls = networks.harmony.clone();
-        },
-        "pulsechain" => { 
-            rpc_urls = networks.pulsechain.clone();
-        },
-        "bnb" => { 
-            rpc_urls = networks.bnb.clone();
-        },
-        "boba" => {
-            rpc_urls = networks.boba.clone();
-        },
-        _ => println!("Chain not found"),
+    // Get the URL twice
+    if let Some(url) = rpc_instance.get_url() {
+        println!("First URL: {}", url);
     }
-
-    // Test print
-    println!("Network urls found: {:?}", rpc_urls)
+    
+    if let Some(url) = rpc_instance.get_url() {
+        println!("Second URL: {}", url);
+    }
 }
