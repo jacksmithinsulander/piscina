@@ -15,14 +15,14 @@ struct Networks {
     boba: Vec<String>
 }
 
-struct Rpc {
+pub struct Rpc {
     net_urls: Vec<String>,
     url_index: usize,
 }
 
 impl Rpc {
-    fn new(network: &str) -> Rpc {
-        let json_data = include_str!("../data/rpc.json");
+    pub fn new(network: &str) -> Rpc {
+        let json_data = include_str!("../../data/rpc.json");
         
         // Deserialize JSON into Networks struct
         let networks: Networks = serde_json::from_str(json_data).expect("JSON parsing failed");
@@ -52,7 +52,7 @@ impl Rpc {
         }
     }
 
-    fn get_url(&mut self) -> Option<&String> {
+    pub fn get_url(&mut self) -> Option<&String> {
         let url = &self.net_urls[self.url_index % self.net_urls.len()];
         self.url_index += 1;
         Some(url)
