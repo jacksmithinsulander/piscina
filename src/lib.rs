@@ -1,7 +1,8 @@
 use serde::{Deserialize};
 
+/// Structure for url list by network
 #[derive(Debug, Deserialize)]
-pub struct Networks {
+struct Networks {
     eth: Vec<String>,
     matic: Vec<String>,
     arb: Vec<String>,
@@ -15,13 +16,27 @@ pub struct Networks {
     boba: Vec<String>
 }
 
+/// Structure that holds list of RPC urls and current index 
 pub struct Rpc {
+    /// URLs of the network.
     pub net_urls: Vec<String>,
+    /// Index to track the current URL in use.
     pub url_index: usize,
 }
 
+/// Implementation for url list
 impl Rpc {
-    pub fn new(network: &str) -> Rpc {
+    /// Function for creating a new instance of RPC url list
+    /// 
+    /// # Arguments
+    ///
+    /// * `network` - A string slice representing the desired network.
+    ///
+    /// # Returns
+    ///
+    /// A new `Rpc` instance configured for the specified network.
+    pub fn new(network: &str) -> Rpc { 
+        // load json data from external file
         let json_data = include_str!("../data/rpc.json");
         
         // Deserialize JSON into Networks struct
@@ -46,15 +61,29 @@ impl Rpc {
             }
         };
 
+        // Assign the RPC instance that gets returned
         Rpc { 
             net_urls: urls,
             url_index: 0
         }
     }
 
+    /// Retrieves the next URL from the network URLs list.
+    ///
+    /// # Returns
+    ///
+    /// An optional reference to the next URL as a string, 
+    /// or `None` if there are no URLs available.
     pub fn get_url(&mut self) -> Option<&String> {
+        // Pick the url from the list
+        // Doing modulus operation using self.net_urls.len() so that it rotates
+        // through the list
         let url = &self.net_urls[self.url_index % self.net_urls.len()];
+        
+        // Increment index
         self.url_index += 1;
+        
+        // Returning url
         Some(url)
     }
 }
@@ -122,7 +151,6 @@ mod tests {
         let matic_url_2 = "https://polygon.blockpi.network/v1/rpc/public";
         
         let ftm_url_1 = "https://rpcapi.fantom.network";
-        let ftm_url_2 = "https://endpoints.omniatech.io/v1/fantom/mainnet/public";
 
         assert_ne!(Some(&eth_url_2.to_string()), eth.get_url());
         assert_ne!(Some(&matic_url_2.to_string()), eth.get_url());
