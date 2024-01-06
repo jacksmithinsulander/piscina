@@ -97,6 +97,7 @@ mod tests {
 
     use super::Rpc;
 
+    // Test to fetch one url
     #[test]
     fn test_eth_instance() {
         let mut eth = Rpc::new("eth");
@@ -104,6 +105,7 @@ mod tests {
         assert_eq!(Some(&expected_url.to_string()), eth.get_url());
     }
 
+    // Test to try iterating through urls on the same network    
     #[test]
     fn test_multiple_instances() {    
         let mut eth = Rpc::new("eth");
@@ -117,6 +119,7 @@ mod tests {
         assert_eq!(Some(&expected_url_3.to_string()), eth.get_url());
     }
 
+    // Test to try multiple instances at the same time from different networks
     #[test]
     fn test_different_instances() {
         let mut eth = Rpc::new("eth");
@@ -142,6 +145,7 @@ mod tests {
         assert_eq!(Some(&ftm_url_2.to_string()), ftm.get_url());
     }
 
+    // Test to see if instance fails as expected
     #[test]
     fn test_failed_instance() {
         let mut eth = Rpc::new("eth");

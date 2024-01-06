@@ -2,7 +2,8 @@
 mod test {
     use ethers::prelude::*;
     use crate::ethereum::rpc_fetcher::Rpc;
-    
+  
+    // Test to ensure i can import my structs into other files
     #[test]
     fn test_import() {
         let mut eth = Rpc::new("eth");
@@ -10,6 +11,7 @@ mod test {
         assert_eq!(Some(&expected_url.to_string()), eth.get_url());
     }
     
+    // Test to try to create a provider using my rpc_fetcher
     #[tokio::test]
     async fn test_get_eth_data() {    
         let mut eth = Rpc::new("bnb");
