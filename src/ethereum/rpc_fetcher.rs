@@ -37,7 +37,7 @@ impl Rpc {
     /// A new `Rpc` instance configured for the specified network.
     pub fn new(network: &str) -> Rpc { 
         // load json data from external file
-        let json_data = include_str!("../data/rpc.json");
+        let json_data = include_str!("../../data/rpc.json");
         
         // Deserialize JSON into Networks struct
         let networks: Networks = serde_json::from_str(json_data).expect("JSON parsing failed");
@@ -87,6 +87,10 @@ impl Rpc {
         Some(url)
     }
 }
+
+///////////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////TESTS/////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////
 
 #[cfg(test)]
 mod tests {
