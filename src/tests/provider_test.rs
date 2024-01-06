@@ -1,5 +1,6 @@
+
 mod test {
-    use ethers::providers::{Provider, Http};
+    use ethers::prelude::*;
     use crate::ethereum::rpc_fetcher::Rpc;
     
     #[test]
@@ -9,14 +10,13 @@ mod test {
         assert_eq!(Some(&expected_url.to_string()), eth.get_url());
     }
     
-    // #[test]
-    // async fn test_get_eth_data() {    
-        // let mut eth = Rpc::new("eth");
-        // let url: &str = eth.get_url();
-        // let eth_provider = Provider::<Http>::try_from(url);
-        // let ens = "vitalik.eth";
-        // let address_from_ens = eth_provider.resolve_name(ens).await;
-        // let address = "0xd8dA6BF26964aF9D7eEd9e03E53415D37aA96045";
-        // assert_eq!(address_from_ens, address);
-    // }
+    #[tokio::test]
+    async fn test_get_eth_data() {    
+        let mut eth = Rpc::new("bnb");
+        let url: &str = eth.get_url().expect("Could not fetch url");
+        let eth_provider = Provider::<Http>::try_from(url);
+        let block = eth_provider.expect("Couldnt fetch block").get_block_number().await.unwrap();
+        let expected_block_number = U64::from(35000000);
+        assert!(block > expected_block_number);
+    }
 }
