@@ -14,7 +14,7 @@ mod test {
     // Test to try to create a provider using my rpc_fetcher
     #[tokio::test]
     async fn test_get_eth_data() {    
-        let mut eth = Rpc::new("bnb");
+        let mut eth: Rpc = Rpc::new("bnb");
         let url: &str = eth.get_url().expect("Could not fetch url");
         let eth_provider = Provider::<Http>::try_from(url);
         let block = eth_provider.expect("Couldnt fetch block").get_block_number().await.unwrap();
