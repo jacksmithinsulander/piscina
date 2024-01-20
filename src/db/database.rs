@@ -13,3 +13,4 @@ struct LiquidityPool {
     token_b_price: i32,
 }
 
+async fn add_token()
