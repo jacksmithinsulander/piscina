@@ -9,5 +9,8 @@ pkgs.mkShell
   ];
   shellHook = ''
     echo "Godbye World"
+    mysql -u root -e "CREATE DATABASE liquidity_pools;"
+    mysql -u root liquidity_pools < ./data/init.sql
+    mysqlshow -u root
   '';
 }
