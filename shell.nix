@@ -6,10 +6,8 @@ pkgs.mkShell
     cargo
     rustup
     mysql80
-    curl
   ];
   shellHook = ''
     echo "Godbye World"
-    curl wttr.in
   '';
 }
