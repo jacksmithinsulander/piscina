@@ -11,5 +11,5 @@ CREATE TABLE IF NOT EXISTS `found_pools` (
     `token_b_name` VARCHAR(255) NOT NULL,
     `token_b_symbol` VARCHAR(255) NOT NULL,
     `token_b_amount` INT,
-    `token_b_price` INT,
+    `token_b_price` INT
 );
