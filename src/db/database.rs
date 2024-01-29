@@ -48,4 +48,6 @@ async fn root() -> String {
     "Server is up and running".to_string()
 }
 
-async fn add_token() {}
+async fn get_pair() {}
+
+async fn add_pair() {}
