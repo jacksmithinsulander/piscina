@@ -53,8 +53,8 @@ async fn root() -> String {
     "Server is up and running".to_string()
 }
 
-async fn get_pair() {}
+async fn get_pair(path: web::Path<i32>, app_state: web::Data<AppState>) -> HttpResponse {}
 
 async fn add_pair(body: web::Json<LiquidityPool>, app_state: web::Data<AppState>) -> HttpResponse {}
 
-async fn delete_pair() {}
+async fn delete_pair(body: web::Json<DeletePoolBody>, app_state: web::Data<AppState>) -> HttpResponse {}
