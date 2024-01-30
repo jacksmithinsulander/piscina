@@ -22,6 +22,11 @@ struct LiquidityPool {
     token_b_price: i32,
 }
 
+#[derive(Serialize, Deserialize)]
+struct DeletePairBody {
+    uid: i32,
+}
+
 #[actix_web::main]
 async fn main() -> std::io::Result<()> {
     
@@ -50,4 +55,6 @@ async fn root() -> String {
 
 async fn get_pair() {}
 
-async fn add_pair() {}
+async fn add_pair(body: web::Json<LiquidityPool>, app_state: web::Data<AppState>) -> HttpResponse {}
+
+async fn delete_pair() {}
