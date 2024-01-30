@@ -7,17 +7,24 @@ use sqlx::mysql::{ MySqlConnection, MySqlPool, MySqlPoolOptions, MySqlQueryResul
 use sqlx::{FromRow, Connection};
 
 
+#[derive(Clone)]
+struct AppState {
+    pool: MySqlPool,
+}
+
+
+
 #[derive(Serialize, Deserialize)]
 struct LiquidityPool {
     uid: i32,
-    chain: str,
+    chain: &str,
     time_of_creation: i32,
-    token_a_name: str,
-    token_a_symbol: str,
+    token_a_name: &str,
+    token_a_symbol: &str,
     token_a_amount: i32,
     token_a_price: i32,
-    token_b_name: str,
-    token_b_symbol: str,
+    token_b_name: &str,
+    token_b_symbol: &str,
     token_b_amount: i32,
     token_b_price: i32,
 }
@@ -56,12 +63,13 @@ async fn root() -> String {
 async fn get_pair(path: web::Path<i32>, app_state: web::Data<AppState>) -> HttpResponse {
     let pool_id: usize = path.into_inner();
 
-    let pool: sqlx::Result<Opion<LiquidityPool>> = sqlx::query("SELECT * FROM found_pools WHERE uid = ?")
-        .bind(pool_id as u64)
-        .fetch_option(&app_state.pool)
-        .await;
+    let pool: sqlx::Result<Opion<LiquidityPool>> = sqlx::query_as!(
+        LiquidityPool,
+        "SELECT * FROM found_pools WHERE uid = ?",
+        pool_id as u64,
+    ).fetch_option(&app_state.pool).await;
 }
 
-async fn add_pair(body: web::Json<LiquidityPool>, app_state: web::Data<AppState>) -> HttpResponse {}
+// async fn add_pair(body: web::Json<LiquidityPool>, app_state: web::Data<AppState>) -> HttpResponse {}
 
-async fn delete_pair(body: web::Json<DeletePoolBody>, app_state: web::Data<AppState>) -> HttpResponse {}
+// async fn delete_pair(body: web::Json<DeletePairBody>, app_state: web::Data<AppState>) -> HttpResponse {}
