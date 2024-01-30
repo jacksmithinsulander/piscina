@@ -53,7 +53,14 @@ async fn root() -> String {
     "Server is up and running".to_string()
 }
 
-async fn get_pair(path: web::Path<i32>, app_state: web::Data<AppState>) -> HttpResponse {}
+async fn get_pair(path: web::Path<i32>, app_state: web::Data<AppState>) -> HttpResponse {
+    let pool_id: usize = path.into_inner();
+
+    let pool: sqlx::Result<Opion<LiquidityPool>> = sqlx::query("SELECT * FROM found_pools WHERE uid = ?")
+        .bind(pool_id as u64)
+        .fetch_option(&app_state.pool)
+        .await;
+}
 
 async fn add_pair(body: web::Json<LiquidityPool>, app_state: web::Data<AppState>) -> HttpResponse {}
 
