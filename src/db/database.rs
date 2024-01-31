@@ -71,6 +71,27 @@ async fn root() -> String {
     "Server is up and running".to_string()
 }
 
+// async fn get_pair(path: web::Path<i32>, app_state: web::Data<AppState>) -> HttpResponse {
+    // let pool_id: i32 = path.into_inner();
+
+    // let pool: sqlx::Result<Option<LiquidityPool>> = sqlx::query_as!(
+        // LiquidityPool,
+        // "SELECT * FROM found_pools WHERE uid = ?",
+        // pool_id as u64,
+    // ).fetch_option(&app_state.pool).await;
+
+    // if pool.is_err() {
+        // return HttpResponse::BadRequest().json(Response {
+            // message: "No user found with given id.".to_string()
+        // });
+    // }
+
+    // HttpResponse::Ok().json(PoolsResponse {
+        // pools: pool.unwrap(), 
+        // message: "Got pool.".to_string(),
+    // })
+// }
+
 async fn get_pair(path: web::Path<i32>, app_state: web::Data<AppState>) -> HttpResponse {
     let pool_id: i32 = path.into_inner();
 
@@ -80,16 +101,24 @@ async fn get_pair(path: web::Path<i32>, app_state: web::Data<AppState>) -> HttpR
         pool_id as u64,
     ).fetch_option(&app_state.pool).await;
 
-    if pool.is_err() {
-        return HttpResponse::BadRequest().json(Response {
-            message: "No user found with given id.".to_string()
-        });
+    match pool {
+        Ok(Some(pool)) => {
+            HttpResponse::Ok().json(PoolsResponse {
+                pools: vec![pool],
+                message: "Got pool.".to_string(),
+            })
+        }
+        Ok(None) => {
+            HttpResponse::NotFound().json(Response {
+                message: "No pool found with the given id.".to_string(),
+            })
+        }
+        Err(_) => {
+            HttpResponse::BadRequest().json(Response {
+                message: "Error retrieving pool.".to_string(),
+            })
+        }
     }
-
-    HttpResponse::Ok().json(PoolsResponse {
-        pools: pool.unwrap(), 
-        message: "Got pool.".to_string(),
-    })
 }
 
 // async fn add_pair(body: web::Json<LiquidityPool>, app_state: web::Data<AppState>) -> HttpResponse {}
