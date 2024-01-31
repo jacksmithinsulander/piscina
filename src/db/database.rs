@@ -12,22 +12,33 @@ struct AppState {
     pool: MySqlPool,
 }
 
-
+#[derive(Serialize, Deserialize)]
+struct Response {
+    message: String,
+}
 
 #[derive(Serialize, Deserialize)]
 struct LiquidityPool {
     uid: i32,
-    chain: &str,
+    chain: String,
     time_of_creation: i32,
-    token_a_name: &str,
-    token_a_symbol: &str,
+    token_a_name: String,
+    token_a_symbol: String,
     token_a_amount: i32,
     token_a_price: i32,
-    token_b_name: &str,
-    token_b_symbol: &str,
+    token_b_name: String,
+    token_b_symbol: String,
     token_b_amount: i32,
     token_b_price: i32,
 }
+
+#[derive(Serialize, Deserialize)]
+struct PoolsResponse {
+    pools: Vec<LiquidityPool>,
+    message: String,
+}
+
+
 
 #[derive(Serialize, Deserialize)]
 struct DeletePairBody {
@@ -61,13 +72,24 @@ async fn root() -> String {
 }
 
 async fn get_pair(path: web::Path<i32>, app_state: web::Data<AppState>) -> HttpResponse {
-    let pool_id: usize = path.into_inner();
+    let pool_id: i32 = path.into_inner();
 
-    let pool: sqlx::Result<Opion<LiquidityPool>> = sqlx::query_as!(
+    let pool: sqlx::Result<Option<LiquidityPool>> = sqlx::query_as!(
         LiquidityPool,
         "SELECT * FROM found_pools WHERE uid = ?",
         pool_id as u64,
     ).fetch_option(&app_state.pool).await;
+
+    if pool.is_err() {
+        return HttpResponse::BadRequest().json(Response {
+            message: "No user found with given id.".to_string()
+        });
+    }
+
+    HttpResponse::Ok().json(PoolsResponse {
+        pools: pool.unwrap(), 
+        message: "Got pool.".to_string(),
+    })
 }
 
 // async fn add_pair(body: web::Json<LiquidityPool>, app_state: web::Data<AppState>) -> HttpResponse {}
