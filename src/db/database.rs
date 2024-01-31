@@ -3,8 +3,8 @@ use actix_web::{ HttpServer,
     HttpResponse,
     web };
 use serde::{ Serialize, Deserialize };
-use sqlx::mysql::{ MySqlConnection, MySqlPool, MySqlPoolOptions, MySqlQueryResult, MySqlRow };
-use sqlx::{FromRow, Connection};
+use sqlx::mysql::{ /* MySqlConnection, */ MySqlPool, MySqlPoolOptions /*, MySqlQueryResult, MySqlRow */};
+use sqlx /*  ::{FromRow, Connection} */;
 
 
 #[derive(Clone)]
@@ -48,7 +48,7 @@ struct DeletePairBody {
 #[actix_web::main]
 async fn main() -> std::io::Result<()> {
     
-    const DB_URL: &str = "mysql://user:password@127.0.0.1:3306/sqlx";
+    const DB_URL: &str = "mysql://user@127.0.0.1:3306/sqlx";
     
     let pool: MySqlPool = MySqlPoolOptions::new()
         .max_connections(10)
@@ -62,6 +62,7 @@ async fn main() -> std::io::Result<()> {
         App::new()
             .app_data(web::Data::new(app_state.clone()))
             .route("/", web::get().to(root))
+            .route("/get/{pool_id}", web::get().to(get_pair))
     }).bind(("127.0.0.1", 8000))?
         .run()
         .await
@@ -98,8 +99,8 @@ async fn get_pair(path: web::Path<i32>, app_state: web::Data<AppState>) -> HttpR
     let pool: sqlx::Result<Option<LiquidityPool>> = sqlx::query_as!(
         LiquidityPool,
         "SELECT * FROM found_pools WHERE uid = ?",
-        pool_id as u64,
-    ).fetch_option(&app_state.pool).await;
+        pool_id as i32,
+    ).fetch_optional(&app_state.pool).await;
 
     match pool {
         Ok(Some(pool)) => {

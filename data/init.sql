@@ -1,4 +1,7 @@
--- File: create_table.sql
+DROP USER 'user'@'localhost';
+CREATE USER 'user'@'localhost' IDENTIFIED BY '';
+GRANT ALL PRIVILEGES ON *.* TO 'user'@'localhost' WITH GRANT OPTION;
+FLUSH PRIVILEGES;
 
 CREATE TABLE IF NOT EXISTS `found_pools` (
     `uid` INT AUTO_INCREMENT PRIMARY KEY,
@@ -30,10 +33,10 @@ INSERT INTO found_pools (
     1706647507,
     'ETHEREUM',
     'ETH',
-    30,  -- Replace with the actual token A amount value
-    1000000,  -- Replace with the actual token A price value
+    30,
+    1000000,
     'AMPLEFORTH',
     'AMPL',
-    1000000,  -- Replace with the actual token B amount value
-    0.0003   -- Replace with the actual token B price value
+    1000000,
+    3
 );
