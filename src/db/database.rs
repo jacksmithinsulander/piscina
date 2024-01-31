@@ -3,7 +3,7 @@ use actix_web::{ HttpServer,
     HttpResponse,
     web };
 use serde::{ Serialize, Deserialize };
-use sqlx::mysql::{ /* MySqlConnection, */ MySqlPool, MySqlPoolOptions /*, MySqlQueryResult, MySqlRow */};
+use sqlx::mysql::{ /* MySqlConnection, */ MySqlPool, MySqlPoolOptions, MySqlQueryResult /* , MySqlRow */};
 use sqlx /*  ::{FromRow, Connection} */;
 
 
@@ -33,12 +33,10 @@ struct LiquidityPool {
 }
 
 #[derive(Serialize, Deserialize)]
-struct PoolsResponse {
-    pools: Vec<LiquidityPool>,
+struct PoolsResponse<E> {
+    pools: Result<LiquidityPool, E>,
     message: String,
 }
-
-
 
 #[derive(Serialize, Deserialize)]
 struct DeletePairBody {
@@ -72,54 +70,30 @@ async fn root() -> String {
     "Server is up and running".to_string()
 }
 
-// async fn get_pair(path: web::Path<i32>, app_state: web::Data<AppState>) -> HttpResponse {
-    // let pool_id: i32 = path.into_inner();
-
-    // let pool: sqlx::Result<Option<LiquidityPool>> = sqlx::query_as!(
-        // LiquidityPool,
-        // "SELECT * FROM found_pools WHERE uid = ?",
-        // pool_id as u64,
-    // ).fetch_option(&app_state.pool).await;
-
-    // if pool.is_err() {
-        // return HttpResponse::BadRequest().json(Response {
-            // message: "No user found with given id.".to_string()
-        // });
-    // }
-
-    // HttpResponse::Ok().json(PoolsResponse {
-        // pools: pool.unwrap(), 
-        // message: "Got pool.".to_string(),
-    // })
-// }
-
 async fn get_pair(path: web::Path<i32>, app_state: web::Data<AppState>) -> HttpResponse {
     let pool_id: i32 = path.into_inner();
 
-    let pool: sqlx::Result<Option<LiquidityPool>> = sqlx::query_as!(
-        LiquidityPool,
-        "SELECT * FROM found_pools WHERE uid = ?",
-        pool_id as i32,
-    ).fetch_optional(&app_state.pool).await;
+    let updated: sqlx::Result<MySqlQueryResult> = sqlx::query!(
+        "DROP TABLE found_pools",
+    ).execute(&app_state.pool).await;
 
-    match pool {
-        Ok(Some(pool)) => {
-            HttpResponse::Ok().json(PoolsResponse {
-                pools: vec![pool],
-                message: "Got pool.".to_string(),
-            })
-        }
-        Ok(None) => {
-            HttpResponse::NotFound().json(Response {
-                message: "No pool found with the given id.".to_string(),
-            })
-        }
-        Err(_) => {
-            HttpResponse::BadRequest().json(Response {
-                message: "Error retrieving pool.".to_string(),
-            })
-        }
+    let pool: Result<LiquidityPool, sqlx::Error> = sqlx::query_as!(
+        LiquidityPool,
+        "SELECT * FROM found_pools WHERE uid=?",
+        pool_id as i32
+    ).fetch_one(&app_state.pool).await;
+
+
+    if pool.is_err() {
+        return HttpResponse::BadRequest().json(Response {
+            message: "No user found with given id.".to_string()
+        });
     }
+
+    HttpResponse::Ok().json(PoolsResponse {
+        pools: pool.unwrap(), 
+        message: "Got pool.".to_string(),
+    })
 }
 
 // async fn add_pair(body: web::Json<LiquidityPool>, app_state: web::Data<AppState>) -> HttpResponse {}
