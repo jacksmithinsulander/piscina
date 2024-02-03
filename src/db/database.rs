@@ -1,5 +1,13 @@
 use persy::{Persy, PersyId, ValueMode, Config};
 use std::fs;
+use serde::{Deserialize, Serialize};
+
+#[derive(Debug, Serialize, Deserialize)]
+struct MyData {
+    // Define your struct fields here
+    // Example:
+    value: String,
+}
 
 pub fn test_persy() -> Result<(), Box<dyn std::error::Error>>  {
     let file_path=  "./data/db.pers";
@@ -21,7 +29,8 @@ pub fn test_persy() -> Result<(), Box<dyn std::error::Error>>  {
         prepared.commit()?;
     }
     let mut tx = persy.begin()?;
-    let rec = "aaaa".as_bytes();
+    let rec = "KUK".as_bytes();
+    println!("{:?}", std::str::from_utf8(rec));
     let id = tx.insert("data", rec)?;
 
     tx.put::<String, PersyId>("index", "key".to_string(), id)?;
@@ -32,7 +41,12 @@ pub fn test_persy() -> Result<(), Box<dyn std::error::Error>>  {
     if let Some(id) = read_id.next() {
         let value = persy.read("data", &id)?;
         assert_eq!(Some(rec.to_vec()), value);
-        ////////println!(value);
+        //let value_decoded: MyData = serde_json::from_slice(&value)?;
+        if let Some(value) = value {
+            println!("{:?}", std::str::from_utf8(&value));
+        } else {
+            println!("Value not found");
+        }
     }
     Ok(())
 }
