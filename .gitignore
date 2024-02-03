@@ -15,4 +15,6 @@ Cargo.lock
 
 data/db/
 
+data/db.persy
+
 flake.lock

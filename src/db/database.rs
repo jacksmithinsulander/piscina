@@ -1,60 +1,52 @@
-use actix_web::{ HttpServer,
-    App,
-    HttpResponse,
-    web };
-use serde::{ Serialize, Deserialize };
-use sqlx::mysql::{ MySqlConnection, MySqlPool, MySqlPoolOptions, MySqlQueryResult, MySqlRow };
-use sqlx::{FromRow, Connection};
+use persy::{Persy, PersyId, ValueMode, Config};
+use std::fs;
+use serde::{Deserialize, Serialize};
 
-
-#[derive(Serialize, Deserialize)]
-struct LiquidityPool {
-    uid: i32,
-    chain: str,
-    time_of_creation: i32,
-    token_a_name: str,
-    token_a_symbol: str,
-    token_a_amount: i32,
-    token_a_price: i32,
-    token_b_name: str,
-    token_b_symbol: str,
-    token_b_amount: i32,
-    token_b_price: i32,
+#[derive(Debug, Serialize, Deserialize)]
+struct MyData {
+    // Define your struct fields here
+    // Example:
+    value: String,
 }
 
-#[derive(Serialize, Deserialize)]
-struct DeletePairBody {
-    uid: i32,
+pub fn test_persy() -> Result<(), Box<dyn std::error::Error>>  {
+    let file_path=  "./data/db.pers";
+    let create_segment;
+    if !fs::metadata(&file_path).is_ok() {
+        let _ = Persy::create(&file_path)?;
+        create_segment = true;
+    } else {
+        create_segment = false;
+    }
+    let persy = Persy::open(&file_path, Config::new())?;
+    if create_segment {
+        let mut tx = persy.begin()?;
+        tx.create_segment("data")?;
+        //let data = vec![1;20];
+        //let id = tx.insert("seg", &data);
+        tx.create_index::<String, PersyId>("index", ValueMode::Replace)?;
+        let prepared = tx.prepare()?;
+        prepared.commit()?;
+    }
+    let mut tx = persy.begin()?;
+    let rec = "KUK".as_bytes();
+    println!("{:?}", std::str::from_utf8(rec));
+    let id = tx.insert("data", rec)?;
+
+    tx.put::<String, PersyId>("index", "key".to_string(), id)?;
+    let prepared = tx.prepare()?;
+    prepared.commit()?;
+
+    let mut read_id = persy.get::<String, PersyId>("index", &"key".to_string())?;
+    if let Some(id) = read_id.next() {
+        let value = persy.read("data", &id)?;
+        assert_eq!(Some(rec.to_vec()), value);
+        //let value_decoded: MyData = serde_json::from_slice(&value)?;
+        if let Some(value) = value {
+            println!("{:?}", std::str::from_utf8(&value));
+        } else {
+            println!("Value not found");
+        }
+    }
+    Ok(())
 }
-
-#[actix_web::main]
-async fn main() -> std::io::Result<()> {
-    
-    const DB_URL: &str = "mysql://user:password@127.0.0.1:3306/sqlx";
-    
-    let pool: MySqlPool = MySqlPoolOptions::new()
-        .max_connections(10)
-        .connect(DB_URL)
-        .await
-        .unwrap();
-
-    let app_state = AppState { pool };
-
-    HttpServer::new(move || {
-        App::new()
-            .app_data(web::Data::new(app_state.clone()))
-            .route("/", web::get().to(root))
-    }).bind(("127.0.0.1", 8000))?
-        .run()
-        .await
-}
-
-async fn root() -> String {
-    "Server is up and running".to_string()
-}
-
-async fn get_pair(path: web::Path<i32>, app_state: web::Data<AppState>) -> HttpResponse {}
-
-async fn add_pair(body: web::Json<LiquidityPool>, app_state: web::Data<AppState>) -> HttpResponse {}
-
-async fn delete_pair(body: web::Json<DeletePoolBody>, app_state: web::Data<AppState>) -> HttpResponse {}
