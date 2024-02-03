@@ -1,101 +1,38 @@
-use actix_web::{ HttpServer,
-    App,
-    HttpResponse,
-    web };
-use serde::{ Serialize, Deserialize };
-use sqlx::mysql::{ /* MySqlConnection, */ MySqlPool, MySqlPoolOptions, MySqlQueryResult /* , MySqlRow */};
-use sqlx /*  ::{FromRow, Connection} */;
+use persy::{Persy, PersyId, ValueMode, Config};
+use std::fs;
 
-
-#[derive(Clone)]
-struct AppState {
-    pool: MySqlPool,
-}
-
-#[derive(Serialize, Deserialize)]
-struct Response {
-    message: String,
-}
-
-#[derive(Serialize, Deserialize)]
-struct LiquidityPool {
-    uid: i32,
-    chain: String,
-    time_of_creation: i32,
-    token_a_name: String,
-    token_a_symbol: String,
-    token_a_amount: i32,
-    token_a_price: i32,
-    token_b_name: String,
-    token_b_symbol: String,
-    token_b_amount: i32,
-    token_b_price: i32,
-}
-
-#[derive(Serialize, Deserialize)]
-struct PoolsResponse<E> {
-    pools: Result<LiquidityPool, E>,
-    message: String,
-}
-
-#[derive(Serialize, Deserialize)]
-struct DeletePairBody {
-    uid: i32,
-}
-
-#[actix_web::main]
-async fn main() -> std::io::Result<()> {
-    
-    const DB_URL: &str = "mysql://user@127.0.0.1:3306/sqlx";
-    
-    let pool: MySqlPool = MySqlPoolOptions::new()
-        .max_connections(10)
-        .connect(DB_URL)
-        .await
-        .unwrap();
-
-    let app_state = AppState { pool };
-
-    HttpServer::new(move || {
-        App::new()
-            .app_data(web::Data::new(app_state.clone()))
-            .route("/", web::get().to(root))
-            .route("/get/{pool_id}", web::get().to(get_pair))
-    }).bind(("127.0.0.1", 8000))?
-        .run()
-        .await
-}
-
-async fn root() -> String {
-    "Server is up and running".to_string()
-}
-
-async fn get_pair(path: web::Path<i32>, app_state: web::Data<AppState>) -> HttpResponse {
-    let pool_id: i32 = path.into_inner();
-
-    let updated: sqlx::Result<MySqlQueryResult> = sqlx::query!(
-        "DROP TABLE found_pools",
-    ).execute(&app_state.pool).await;
-
-    let pool: Result<LiquidityPool, sqlx::Error> = sqlx::query_as!(
-        LiquidityPool,
-        "SELECT * FROM found_pools WHERE uid=?",
-        pool_id as i32
-    ).fetch_one(&app_state.pool).await;
-
-
-    if pool.is_err() {
-        return HttpResponse::BadRequest().json(Response {
-            message: "No user found with given id.".to_string()
-        });
+pub fn test_persy() -> Result<(), Box<dyn std::error::Error>>  {
+    let file_path=  "./data/db.pers";
+    let create_segment;
+    if !fs::metadata(&file_path).is_ok() {
+        let _ = Persy::create(&file_path)?;
+        create_segment = true;
+    } else {
+        create_segment = false;
     }
+    let persy = Persy::open(&file_path, Config::new())?;
+    if create_segment {
+        let mut tx = persy.begin()?;
+        tx.create_segment("data")?;
+        //let data = vec![1;20];
+        //let id = tx.insert("seg", &data);
+        tx.create_index::<String, PersyId>("index", ValueMode::Replace)?;
+        let prepared = tx.prepare()?;
+        prepared.commit()?;
+    }
+    let mut tx = persy.begin()?;
+    let rec = "aaaa".as_bytes();
+    let id = tx.insert("data", rec)?;
 
-    HttpResponse::Ok().json(PoolsResponse {
-        pools: pool.unwrap(), 
-        message: "Got pool.".to_string(),
-    })
+    tx.put::<String, PersyId>("index", "key".to_string(), id)?;
+    let prepared = tx.prepare()?;
+    prepared.commit()?;
+
+    let mut read_id = persy.get::<String, PersyId>("index", &"key".to_string())?;
+    if let Some(id) = read_id.next() {
+        let value = persy.read("data", &id)?;
+        assert_eq!(Some(rec.to_vec()), value);
+        ////////println!(value);
+    }
+    Ok(())
 }
-
-// async fn add_pair(body: web::Json<LiquidityPool>, app_state: web::Data<AppState>) -> HttpResponse {}
-
-// async fn delete_pair(body: web::Json<DeletePairBody>, app_state: web::Data<AppState>) -> HttpResponse {}
