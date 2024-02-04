@@ -1,6 +1,6 @@
 //use crate::db::database::test_persy;
 
-use crate::db::database::{create_lp, init_lp_database, read_lp, update_lp, LiquidityPool};
+use crate::db::database::{create_lp, delete_lp, get_lp_count, init_lp_database, read_lp, update_lp, LiquidityPool};
 
 // use provider_factory::test_import;
 mod ethereum;
@@ -56,13 +56,22 @@ fn main() {
 
     create_lp(&liquidity_pool_1);
 
+    println!("LP count: {:?}", get_lp_count());
+
     create_lp(&liquidity_pool_2);
 
-    read_lp(1);
+    println!("LP count: {:?}", get_lp_count());
 
-    read_lp(2);
+    println!("LP index 1: {:?}",read_lp(1));
+
+    println!("LP index 2: {:?}", read_lp(2));
 
     update_lp(2, &liquidity_pool_3);
 
-    read_lp(2);
+    println!("LP index 2: {:?}", read_lp(2));
+
+    delete_lp(2);
+    
+    println!("LP count: {:?}", get_lp_count());
+
 }
