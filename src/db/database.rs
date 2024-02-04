@@ -61,7 +61,7 @@ pub fn create_lp(pool: &LiquidityPool) -> Result<(), Box<dyn std::error::Error>>
     Ok(())
 }
 
-pub fn read_lp(uid: i32) -> Result<(), Box<dyn std::error::Error>> {
+pub fn read_lp(uid: i32) -> Result<LiquidityPool, Box<dyn std::error::Error>> {
     let file_path: &str = "./data/db.persy";
     if !fs::metadata(&file_path).is_ok() {
         println!("No database found");
@@ -84,9 +84,9 @@ pub fn read_lp(uid: i32) -> Result<(), Box<dyn std::error::Error>> {
 
     let deserialized_lp: LiquidityPool = serde_json::from_slice(&bytes)?;
 
-    println!("Deserialized value: {:?}", deserialized_lp);
+    // println!("Deserialized value: {:?}", deserialized_lp);
 
-    Ok(())
+    Ok(deserialized_lp)
 }
 
 pub fn update_lp(uid: i32, pool: &LiquidityPool) -> Result<(), Box<dyn std::error::Error>> {
@@ -146,7 +146,7 @@ pub fn delete_lp(uid: i32) -> Result<(), Box<dyn std::error::Error>> {
     Ok(())
 }
 
-pub fn get_lp_count() -> Result<(), Box<dyn std::error::Error>> {
+pub fn get_lp_count() -> Result<i32, Box<dyn std::error::Error>> {
     let file_path: &str = "./data/db.persy";
     if !fs::metadata(&file_path).is_ok() {
         println!("No database found");
@@ -155,12 +155,12 @@ pub fn get_lp_count() -> Result<(), Box<dyn std::error::Error>> {
     let persy: Persy = Persy::open(&file_path, Config::new())?;
 
     let mut count = 0;
-    for (id,content) in persy.scan("pools_found")? {
+    for (_,_) in persy.scan("pools_found")? {
         //println!("record size:{}",content.len());
         count+=1;
     }
 
-    println!("Pools found: {:?}", count);
+    //println!("Pools found: {:?}", count);
 
-    Ok(())
+    Ok(count)
 }

@@ -56,21 +56,22 @@ fn main() {
 
     create_lp(&liquidity_pool_1);
 
-    get_lp_count();
+    println!("LP count: {:?}", get_lp_count());
 
     create_lp(&liquidity_pool_2);
 
-    get_lp_count();
+    println!("LP count: {:?}", get_lp_count());
 
-    read_lp(1);
+    println!("LP index 1: {:?}",read_lp(1));
 
-    read_lp(2);
+    println!("LP index 2: {:?}", read_lp(2));
 
     update_lp(2, &liquidity_pool_3);
 
-    read_lp(2);
+    println!("LP index 2: {:?}", read_lp(2));
 
     delete_lp(2);
+    
+    println!("LP count: {:?}", get_lp_count());
 
-    get_lp_count();
 }
