@@ -3,67 +3,23 @@ use std::fs;
 use serde::{Deserialize, Serialize};
 use serde_json;
 
-pub fn test_persy() -> Result<(), Box<dyn std::error::Error>>  {
-    let file_path=  "./data/db.pers";
-    let create_segment;
-    if !fs::metadata(&file_path).is_ok() {
-        let _ = Persy::create(&file_path)?;
-        create_segment = true;
-    } else {
-        create_segment = false;
-    }
-    let persy = Persy::open(&file_path, Config::new())?;
-    if create_segment {
-        let mut tx = persy.begin()?;
-        tx.create_segment("data")?;
-        //let data = vec![1;20];
-        //let id = tx.insert("seg", &data);
-        //tx.create_index::<String, PersyId>("index", ValueMode::Replace)?;
-        let prepared = tx.prepare()?;
-        prepared.commit()?;
-    }
-    let mut tx = persy.begin()?;
-    let rec = "KUK".as_bytes();
-    println!("{:?}", std::str::from_utf8(rec));
-    let id = tx.insert("data", rec)?;
-
-    println!("The ID is: {:?}", id);
-
-    tx.put::<String, PersyId>("index", "key".to_string(), id)?;
-    let prepared = tx.prepare()?;
-    prepared.commit()?;
-
-    let mut read_id = persy.get::<String, PersyId>("index", &"key".to_string())?;
-    if let Some(id) = read_id.next() {
-        let value = persy.read("data", &id)?;
-        assert_eq!(Some(rec.to_vec()), value);
-        //let value_decoded: MyData = serde_json::from_slice(&value)?;
-        if let Some(value) = value {
-            println!("{:?}", std::str::from_utf8(&value));
-        } else {
-            println!("Value not found");
-        }
-    }
-    Ok(())
-}
-
-#[derive(Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize)]
 pub struct LiquidityPool {
-    uid: i32,
-    chain: String,
-    time_of_creation: i32,
-    token_a_name: String,
-    token_a_symbol: String,
-    token_a_amount: i32,
-    token_a_price: i32,
-    token_b_name: String,
-    token_b_symbol: String,
-    token_b_amount: i32,
-    token_b_price: i32,
+    pub uid: i32,
+    pub chain: String,
+    pub time_of_creation: i32,
+    pub token_a_name: String,
+    pub token_a_symbol: String,
+    pub token_a_amount: i32,
+    pub token_a_price: i32,
+    pub token_b_name: String,
+    pub token_b_symbol: String,
+    pub token_b_amount: i32,
+    pub token_b_price: i32,
 }
 
 pub fn init_lp_database() -> Result<(), Box<dyn std::error::Error>> {
-    let file_path: &str = "./data/db.pers";
+    let file_path: &str = "./data/db.persy";
     let create_segment: bool;
     if !fs::metadata(&file_path).is_ok() {
         let _ = Persy::create(&file_path)?;
@@ -85,7 +41,7 @@ pub fn init_lp_database() -> Result<(), Box<dyn std::error::Error>> {
 }
 
 pub fn create_lp(pool: &LiquidityPool) -> Result<(), Box<dyn std::error::Error>> {
-    let file_path: &str = "./data/db.pers";
+    let file_path: &str = "./data/db.persy";
     if !fs::metadata(&file_path).is_ok() {
         println!("No database found");
     }
@@ -97,8 +53,6 @@ pub fn create_lp(pool: &LiquidityPool) -> Result<(), Box<dyn std::error::Error>>
     let serialized_bytes = serialized.as_slice();
     let id = tx.insert("pools_found", serialized_bytes)?;
 
-    println!("The ID is: {:?}", id);
-
     tx.put::<String, PersyId>("index", pool.uid.to_string(), id)?;
 
     let prepared = tx.prepare()?;
@@ -108,7 +62,7 @@ pub fn create_lp(pool: &LiquidityPool) -> Result<(), Box<dyn std::error::Error>>
 }
 
 pub fn read_lp(uid: i32) -> Result<(), Box<dyn std::error::Error>> {
-    let file_path: &str = "./data/db.pers";
+    let file_path: &str = "./data/db.persy";
     if !fs::metadata(&file_path).is_ok() {
         println!("No database found");
     }
@@ -129,7 +83,13 @@ pub fn read_lp(uid: i32) -> Result<(), Box<dyn std::error::Error>> {
 
     let value = persy.read("pools_found", &id)?;
 
-    println!("{:?}", value);
+    //println!("Serialized value: {:?}", value);
+
+    let bytes = value.unwrap();
+
+    let deserialized_lp: LiquidityPool = serde_json::from_slice(&bytes)?;
+
+    println!("Deserialized value: {:?}", deserialized_lp);
 
     Ok(())
 }
