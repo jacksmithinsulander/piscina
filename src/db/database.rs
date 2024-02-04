@@ -145,3 +145,22 @@ pub fn delete_lp(uid: i32) -> Result<(), Box<dyn std::error::Error>> {
 
     Ok(())
 }
+
+pub fn get_lp_count() -> Result<(), Box<dyn std::error::Error>> {
+    let file_path: &str = "./data/db.persy";
+    if !fs::metadata(&file_path).is_ok() {
+        println!("No database found");
+    }
+    
+    let persy: Persy = Persy::open(&file_path, Config::new())?;
+
+    let mut count = 0;
+    for (id,content) in persy.scan("pools_found")? {
+        //println!("record size:{}",content.len());
+        count+=1;
+    }
+
+    println!("Pools found: {:?}", count);
+
+    Ok(())
+}
