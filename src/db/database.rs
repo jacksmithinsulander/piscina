@@ -48,7 +48,7 @@ pub fn test_persy() -> Result<(), Box<dyn std::error::Error>>  {
 }
 
 #[derive(Serialize, Deserialize)]
-struct LiquidityPool {
+pub struct LiquidityPool {
     uid: i32,
     chain: String,
     time_of_creation: i32,
@@ -61,8 +61,6 @@ struct LiquidityPool {
     token_b_amount: i32,
     token_b_price: i32,
 }
-
-
 
 pub fn init_lp_database() -> Result<(), Box<dyn std::error::Error>> {
     let file_path: &str = "./data/db.pers";
@@ -78,6 +76,7 @@ pub fn init_lp_database() -> Result<(), Box<dyn std::error::Error>> {
     if create_segment {
         let mut tx: Transaction= persy.begin()?;
         tx.create_segment("pools_found")?;
+        tx.create_index::<String, PersyId>("index", ValueMode::Replace)?;
         let prepared = tx.prepare()?;
         prepared.commit()?;
     }
@@ -100,21 +99,38 @@ pub fn create_lp(pool: &LiquidityPool) -> Result<(), Box<dyn std::error::Error>>
 
     println!("The ID is: {:?}", id);
 
-    tx.put::<String, PersyId>("index", "key".to_string(), id)?;
+    tx.put::<String, PersyId>("index", pool.uid.to_string(), id)?;
+
     let prepared = tx.prepare()?;
     prepared.commit()?;
 
     Ok(())
 }
 
-pub fn read_lp(uid: Option<i32>, token_a_name: Option<String>, token_b_name: Option<String>) -> Result<(), Box<dyn std::error::Error>> {
+pub fn read_lp(uid: i32) -> Result<(), Box<dyn std::error::Error>> {
     let file_path: &str = "./data/db.pers";
     if !fs::metadata(&file_path).is_ok() {
         println!("No database found");
     }
     
-    let persy: Persy = Persy::open(&file_path, Config::new())?; 
-    
+    let persy: Persy = Persy::open(&file_path, Config::new())?;
+
+    let mut read_id = persy.get::<String, PersyId>("index", &uid.to_string())?;
+
+    //let id = read_id.next();
+
+    let id = match read_id.next() {
+        Some(id) => id,
+        None => {
+            // Handle the case where no ID is found, e.g., return an error or a default value
+            return Err("Pool not found".into());
+        }
+    };
+
+    let value = persy.read("pools_found", &id)?;
+
+    println!("{:?}", value);
+
     Ok(())
 }
 
