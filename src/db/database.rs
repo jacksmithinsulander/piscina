@@ -71,8 +71,6 @@ pub fn read_lp(uid: i32) -> Result<(), Box<dyn std::error::Error>> {
 
     let mut read_id = persy.get::<String, PersyId>("index", &uid.to_string())?;
 
-    //let id = read_id.next();
-
     let id = match read_id.next() {
         Some(id) => id,
         None => {
@@ -83,8 +81,6 @@ pub fn read_lp(uid: i32) -> Result<(), Box<dyn std::error::Error>> {
 
     let value = persy.read("pools_found", &id)?;
 
-    //println!("Serialized value: {:?}", value);
-
     let bytes = value.unwrap();
 
     let deserialized_lp: LiquidityPool = serde_json::from_slice(&bytes)?;
@@ -94,5 +90,35 @@ pub fn read_lp(uid: i32) -> Result<(), Box<dyn std::error::Error>> {
     Ok(())
 }
 
-//fn update_lp() {}
+pub fn update_lp(uid: i32, pool: &LiquidityPool) -> Result<(), Box<dyn std::error::Error>> {
+    let file_path: &str = "./data/db.persy";
+    if !fs::metadata(&file_path).is_ok() {
+        println!("No database found");
+    }
+    
+    let persy: Persy = Persy::open(&file_path, Config::new())?;
+
+    let mut tx = persy.begin()?;
+    
+    let mut read_id = persy.get::<String, PersyId>("index", &uid.to_string())?;
+
+    let id = match read_id.next() {
+        Some(id) => id,
+        None => {
+            // Handle the case where no ID is found, e.g., return an error or a default value
+            return Err("Pool not found".into());
+        }
+    };
+    
+    let serialized = serde_json::to_vec(pool)?;
+    let serialized_bytes = serialized.as_slice();
+
+    tx.update("pools_found", &id, &serialized_bytes)?;
+
+    let prepared = tx.prepare()?;
+    prepared.commit()?;
+
+    Ok(())
+}
+
 //fn delete_lp() {}
