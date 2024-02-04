@@ -18,6 +18,14 @@ pub struct LiquidityPool {
     pub token_b_price: i32,
 }
 
+/// Initializes the Liquidity Pool database. If the database file does not exist,
+/// it creates a new Persy database file, initializes required segments, and commits the transaction.
+/// If the database file already exists, it prints a message and does nothing.
+///
+/// # Returns
+/// Returns a `Result` indicating success or an error.
+/// - If successful, returns `Ok(())`.
+/// - If an error occurs, returns `Err` with the corresponding error.
 pub fn init_lp_database() -> Result<(), Box<dyn std::error::Error>> {
     let file_path: &str = "./data/db.persy";
     let create_segment: bool;
@@ -40,6 +48,16 @@ pub fn init_lp_database() -> Result<(), Box<dyn std::error::Error>> {
     Ok(())
 }
 
+/// Creates a new Liquidity Pool in the database by inserting the serialized pool
+/// into the "pools_found" segment and updating the index with the pool's UID.
+///
+/// # Arguments
+/// - `pool`: A reference to the LiquidityPool to be inserted.
+///
+/// # Returns
+/// Returns a `Result` indicating success or an error.
+/// - If successful, returns `Ok(())`.
+/// - If an error occurs, returns `Err` with the corresponding error
 pub fn create_lp(pool: &LiquidityPool) -> Result<(), Box<dyn std::error::Error>> {
     let file_path: &str = "./data/db.persy";
     if !fs::metadata(&file_path).is_ok() {
@@ -61,6 +79,16 @@ pub fn create_lp(pool: &LiquidityPool) -> Result<(), Box<dyn std::error::Error>>
     Ok(())
 }
 
+/// Reads a Liquidity Pool from the database using the provided UID.
+///
+/// # Arguments
+/// - `uid`: The UID of the Liquidity Pool to be read.
+///
+/// # Returns
+/// Returns a `Result` containing the deserialized LiquidityPool if found.
+/// - If successful, returns `Ok(LiquidityPool)`.
+/// - If the pool with the given UID is not found, returns `Err` with an error message.
+/// - If any other error occurs, returns `Err` with the corresponding error.
 pub fn read_lp(uid: i32) -> Result<LiquidityPool, Box<dyn std::error::Error>> {
     let file_path: &str = "./data/db.persy";
     if !fs::metadata(&file_path).is_ok() {
@@ -84,11 +112,22 @@ pub fn read_lp(uid: i32) -> Result<LiquidityPool, Box<dyn std::error::Error>> {
 
     let deserialized_lp: LiquidityPool = serde_json::from_slice(&bytes)?;
 
-    // println!("Deserialized value: {:?}", deserialized_lp);
 
     Ok(deserialized_lp)
 }
 
+/// Updates the Liquidity Pool with the specified UID in the database.
+///
+/// # Arguments
+///
+/// * `uid` - An integer representing the UID of the Liquidity Pool to be updated.
+/// * `pool` - A reference to the LiquidityPool struct containing the updated data.
+///
+/// # Errors
+///
+/// Returns a Result indicating success or an error if the UID is not found or if any
+/// underlying operation fails. The error type is a dynamic trait object (`Box<dyn std::error::Error>`).
+///
 pub fn update_lp(uid: i32, pool: &LiquidityPool) -> Result<(), Box<dyn std::error::Error>> {
     let file_path: &str = "./data/db.persy";
     if !fs::metadata(&file_path).is_ok() {
@@ -119,6 +158,17 @@ pub fn update_lp(uid: i32, pool: &LiquidityPool) -> Result<(), Box<dyn std::erro
     Ok(())
 }
 
+
+/// Deletes the Liquidity Pool with the specified UID from the database.
+///
+/// # Arguments
+///
+/// * `uid` - An integer representing the UID of the Liquidity Pool to be deleted.
+///
+/// # Errors
+///
+/// Returns a Result indicating success or an error if the UID is not found or if any
+/// underlying operation fails. The error type is a dynamic trait object (`Box<dyn std::error::Error>`).
 pub fn delete_lp(uid: i32) -> Result<(), Box<dyn std::error::Error>> {
     let file_path: &str = "./data/db.persy";
     if !fs::metadata(&file_path).is_ok() {
@@ -146,6 +196,12 @@ pub fn delete_lp(uid: i32) -> Result<(), Box<dyn std::error::Error>> {
     Ok(())
 }
 
+/// Retrieves the count of Liquidity Pools stored in the database.
+///
+/// # Errors
+///
+/// Returns a Result containing the count of Liquidity Pools or an error if any
+/// underlying operation fails. The error type is a dynamic trait object (`Box<dyn std::error::Error>`).
 pub fn get_lp_count() -> Result<i32, Box<dyn std::error::Error>> {
     let file_path: &str = "./data/db.persy";
     if !fs::metadata(&file_path).is_ok() {
@@ -159,8 +215,6 @@ pub fn get_lp_count() -> Result<i32, Box<dyn std::error::Error>> {
         //println!("record size:{}",content.len());
         count+=1;
     }
-
-    //println!("Pools found: {:?}", count);
 
     Ok(count)
 }
