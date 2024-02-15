@@ -112,7 +112,6 @@ pub fn read_lp(uid: i32) -> Result<LiquidityPool, Box<dyn std::error::Error>> {
 
     let deserialized_lp: LiquidityPool = serde_json::from_slice(&bytes)?;
 
-
     Ok(deserialized_lp)
 }
 
