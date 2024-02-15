@@ -11,4 +11,5 @@ serde = { version = "1.0.193", features = ["derive"] }
 serde_json = "1.0.108"
 ethers = "2.0"
 actix-web = "4"
+derive_more = "0.99"
 persy="1.4.7"
