@@ -1,6 +1,5 @@
 use crate::db::database::{create_lp, delete_lp, get_lp_count, init_lp_database, read_lp, update_lp, LiquidityPool};
 
-
 use actix_web::{
     get,
     post,
@@ -46,7 +45,9 @@ impl ResponseError for LiquidityPoolError {
     }
 }
 
-#[post("/latest_pairs")]
-pub async fn get_latest_pairs() -> Result<Json<LiquidityPool>, LiquidityPoolError> {
-
+#[get("/latest_pairs")]
+pub async fn get_latest_pairs() -> Json<LiquidityPool> {
+    let liquidity_pool = read_lp(1).unwrap();
+    Json(liquidity_pool)
 }
+
