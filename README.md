@@ -11,5 +11,5 @@ So I _slightly_ deviated from the original plan regarding my techstack. The crim
 #### ~~Docker~~ --> [Nix](https://nixos.org/)
 #### ~~Redis~~ --> [Persy](https://persy.rs/)
 #### ~~Express~~ --> [Actix](https://actix.rs/docs/server/)
-#### ~~Typescript~~ --> [Rust](https://www.rust-lang.org/)
 
+I think this change, however, achieved the API to be __blazingly__ fast. Also a plus to have a super hipp tech stack 😎
